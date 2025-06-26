@@ -57,7 +57,8 @@ def gather_data(seg_pred, tmp_dir=None):
     # 32 is whitespace
     dir_tensor = torch.full((MAX_LEN,), 32, dtype=torch.uint8, device=ptu.device)
     if ptu.dist_rank == 0:
-        tmpdir = tempfile.mkdtemp(prefix=tmpprefix)
+        # tmpdir = tempfile.mkdtemp(prefix=tmpprefix)
+        tmpdir = tempfile.mkdtemp(prefix="temp_")  # uses /tmp/
         tmpdir = torch.tensor(
             bytearray(tmpdir.encode()), dtype=torch.uint8, device=ptu.device
         )

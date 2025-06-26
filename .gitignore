@@ -24,7 +24,9 @@ lib/
 lib64/
 parts/
 sdist/
+checkpoints/
 var/
+tmp/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/
