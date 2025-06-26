@@ -1,3 +1,4 @@
+from pickle import BINGET
 import segm.utils.torch as ptu
 
 from segm.data import ImagenetDataset
@@ -5,6 +6,8 @@ from segm.data import ADE20KSegmentation
 from segm.data import PascalContextDataset
 from segm.data import CityscapesDataset
 from segm.data import Loader
+from segm.data import BingRGBDataset
+from transformers import CLIPTokenizer
 
 
 def create_dataset(dataset_kwargs):
@@ -13,6 +16,7 @@ def create_dataset(dataset_kwargs):
     batch_size = dataset_kwargs.pop("batch_size")
     num_workers = dataset_kwargs.pop("num_workers")
     split = dataset_kwargs.pop("split")
+    tokenizer_path = dataset_kwargs.pop("tokenizer_path")
 
     # load dataset_name
     if dataset_name == "imagenet":
@@ -24,6 +28,9 @@ def create_dataset(dataset_kwargs):
         dataset = PascalContextDataset(split=split, **dataset_kwargs)
     elif dataset_name == "cityscapes":
         dataset = CityscapesDataset(split=split, **dataset_kwargs)
+    elif dataset_name == "bing_rgb":
+        tokenizer = CLIPTokenizer.from_pretrained(tokenizer_path)
+        dataset = BingRGBDataset(split = split, tokenizer = tokenizer, **dataset_kwargs)
     else:
         raise ValueError(f"Dataset {dataset_name} is unknown.")
 

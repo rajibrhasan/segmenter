@@ -94,6 +94,13 @@ model:
     n_heads: 16
     n_layers: 24
     normalization: vit
+  
+text_encoder:
+  clip_vit_base_patch16:
+    model_path : 'openai/clip-vit-base-patch16'
+    d_model: 512
+dlg:
+  d_model: 1024
 decoder:
   linear: {}
   deeplab_dec:
@@ -130,3 +137,14 @@ dataset:
     crop_size: 768
     window_size: 768
     window_stride: 512
+    
+  bing_rgb:
+    epochs: 200               # You can adjust based on dataset size
+    eval_freq: 1             # Evaluate every 5 epochs
+    batch_size: 8             # Depends on GPU memory
+    learning_rate: 0.001      # Start with a stable learning rate
+    im_size: 512             # Image size (used if resizing is applied)
+    crop_size: 512           # Set to full resolution, assuming no cropping
+    window_size: 512         # For sliding window inference (matches image size)
+    window_stride: 341        # ~2/3 overlap for smooth inference (optional)
+

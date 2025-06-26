@@ -15,6 +15,8 @@ from segm.model.utils import checkpoint_filter_fn
 from segm.model.decoder import DecoderLinear
 from segm.model.decoder import MaskTransformer
 from segm.model.segmenter import Segmenter
+from segm.model.dlg import DenseLanguageGuidanceModule
+from segm.model.text_encoder import CLIPTextEncoder
 import segm.utils.torch as ptu
 
 
@@ -99,13 +101,19 @@ def create_decoder(encoder, decoder_cfg):
 
 
 def create_segmenter(model_cfg):
+    print(model_cfg)
     model_cfg = model_cfg.copy()
+    encoder_t_cfg = model_cfg.pop("text_encoder")
+    dlg_cfg = model_cfg.pop("dlg")
     decoder_cfg = model_cfg.pop("decoder")
     decoder_cfg["n_cls"] = model_cfg["n_cls"]
 
     encoder = create_vit(model_cfg)
-    decoder = create_decoder(encoder, decoder_cfg)
-    model = Segmenter(encoder, decoder, n_cls=model_cfg["n_cls"])
+    encoder_t = CLIPTextEncoder(encoder_t_cfg['model_path'])
+    decoder = create_decoder(encoder,  decoder_cfg)
+    dlg = DenseLanguageGuidanceModule(model_cfg['d_model'], encoder_t_cfg['d_model'], dlg_cfg['d_model'], encoder.d_model)
+
+    model = Segmenter(encoder, encoder_t, dlg, decoder, n_cls=model_cfg["n_cls"])
 
     return model
 

@@ -28,9 +28,10 @@ def train_one_epoch(
     for batch in logger.log_every(data_loader, print_freq, header):
         im = batch["im"].to(ptu.device)
         seg_gt = batch["segmentation"].long().to(ptu.device)
+        text_inputs = batch["text"].to(ptu.device)
 
         with amp_autocast():
-            seg_pred = model.forward(im)
+            seg_pred = model.forward(im, text_inputs)
             loss = criterion(seg_pred, seg_gt)
 
         loss_value = loss.item()
@@ -81,6 +82,7 @@ def evaluate(
     model.eval()
     for batch in logger.log_every(data_loader, print_freq, header):
         ims = [im.to(ptu.device) for im in batch["im"]]
+        text_inputs =  batch["text"].to(ptu.device)
         ims_metas = batch["im_metas"]
         ori_shape = ims_metas[0]["ori_shape"]
         ori_shape = (ori_shape[0].item(), ori_shape[1].item())
@@ -90,6 +92,7 @@ def evaluate(
             seg_pred = utils.inference(
                 model_without_ddp,
                 ims,
+                text_inputs,
                 ims_metas,
                 ori_shape,
                 window_size,

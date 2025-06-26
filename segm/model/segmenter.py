@@ -10,13 +10,18 @@ class Segmenter(nn.Module):
     def __init__(
         self,
         encoder,
+        encoder_t,
+        dlg,
         decoder,
+
         n_cls,
     ):
         super().__init__()
         self.n_cls = n_cls
         self.patch_size = encoder.patch_size
         self.encoder = encoder
+        self.encoder_t = encoder_t
+        self.dlg = dlg
         self.decoder = decoder
 
     @torch.jit.ignore
@@ -29,19 +34,22 @@ class Segmenter(nn.Module):
         )
         return nwd_params
 
-    def forward(self, im):
+    def forward(self, im, text):
         H_ori, W_ori = im.size(2), im.size(3)
         im = padding(im, self.patch_size)
         H, W = im.size(2), im.size(3)
-
-        x = self.encoder(im, return_features=True)
+        fv = self.encoder(im, return_features=True)
 
         # remove CLS/DIST tokens for decoding
         num_extra_tokens = 1 + self.encoder.distilled
-        x = x[:, num_extra_tokens:]
+        fv = fv[:, num_extra_tokens:]
+        text["input_ids"] = text["input_ids"].squeeze(1)         # from (8,1,77) → (8,77)
+        text["attention_mask"] = text["attention_mask"].squeeze(1)
+        fl = self.encoder_t(**text)
+        fm = self.dlg(fv, fl)
 
-        masks = self.decoder(x, (H, W))
-
+        masks = self.decoder(fm, (H, W))
+        
         masks = F.interpolate(masks, size=(H, W), mode="bilinear")
         masks = unpadding(masks, (H_ori, W_ori))
 

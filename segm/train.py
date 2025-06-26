@@ -32,6 +32,7 @@ from segm.engine import train_one_epoch, evaluate
 @click.option("--window-size", default=None, type=int)
 @click.option("--window-stride", default=None, type=int)
 @click.option("--backbone", default="", type=str)
+@click.option("--text_encoder", default = "", type=str)
 @click.option("--decoder", default="", type=str)
 @click.option("--optimizer", default="sgd", type=str)
 @click.option("--scheduler", default="polynomial", type=str)
@@ -53,6 +54,7 @@ def main(
     window_size,
     window_stride,
     backbone,
+    text_encoder,
     decoder,
     optimizer,
     scheduler,
@@ -96,6 +98,8 @@ def main(
     model_cfg["drop_path_rate"] = drop_path
     decoder_cfg["name"] = decoder
     model_cfg["decoder"] = decoder_cfg
+    model_cfg["text_encoder"] = cfg["text_encoder"][text_encoder]
+    model_cfg["dlg"] = cfg["dlg"]
 
     # dataset config
     world_batch_size = dataset_cfg["batch_size"]
@@ -125,6 +129,7 @@ def main(
             crop_size=crop_size,
             batch_size=batch_size,
             normalization=model_cfg["normalization"],
+            tokenizer_path = model_cfg["text_encoder"]["model_path"],
             split="train",
             num_workers=10,
         ),
@@ -176,6 +181,7 @@ def main(
     net_kwargs["n_cls"] = n_cls
     model = create_segmenter(net_kwargs)
     model.to(ptu.device)
+    print(model)
 
     # optimizer
     optimizer_kwargs = variant["optimizer_kwargs"]

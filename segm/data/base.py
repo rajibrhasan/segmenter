@@ -41,6 +41,7 @@ class BaseMMSeg(Dataset):
         self.ratio = config.max_ratio
         self.dataset = None
         self.config = self.update_default_config(config)
+        
         self.dataset = build_dataset(getattr(self.config.data, f"{self.split}"))
 
     def update_default_config(self, config):

@@ -5,6 +5,9 @@ import os
 
 
 def load_config():
+
+    # Set a variable (e.g., model path)
+    os.environ["DATASET"] = "data"
     return yaml.load(
         open(Path(__file__).parent / "config.yml", "r"), Loader=yaml.FullLoader
     )
