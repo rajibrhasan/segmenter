@@ -33,7 +33,7 @@ class BingRGBDataset(CustomDataset):
     def __init__(self, **kwargs):
         super(BingRGBDataset, self).__init__(
             img_suffix='.png',
-            seg_map_suffix='.png',
+            seg_map_suffix='_gt.png',
             **kwargs)
 
 
