@@ -9,6 +9,7 @@ from pathlib import Path
 import tempfile
 import shutil
 from mmseg.core import mean_iou
+from segm.data.utils import IGNORE_LABEL
 
 """
 ImageNet classifcation accuracy
@@ -81,6 +82,21 @@ def gather_data(seg_pred, tmp_dir=None):
         shutil.rmtree(tmpdir)
     return seg_pred
 
+def calculate_cross_entropy_loss(seg_pred, seg_gt, ignore_index=255, distributed = False):
+    criterion = torch.nn.CrossEntropyLoss(ignore_index=ignore_index)
+    if ptu.dist_rank == 0:
+        keys = sorted(seg_pred.keys())
+        seg_preds = torch.stack([seg_pred[k].detach().cpu() for k in keys])
+        seg_gts = torch.stack([torch.from_numpy(seg_gt[k]) for k in keys])
+
+        with torch.no_grad():
+            loss = criterion(seg_preds.cpu().float(), seg_gts.long()).item()
+        
+    if distributed:
+        dist.broadcast(loss, 0)
+        
+    return loss
+    
 
 def compute_metrics(
     seg_pred,

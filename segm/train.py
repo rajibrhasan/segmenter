@@ -5,6 +5,7 @@ import json
 import numpy as np
 import torch
 import click
+import wandb
 import argparse
 from torch.nn.parallel import DistributedDataParallel as DDP
 
@@ -16,13 +17,16 @@ from segm.model.factory import create_segmenter
 from segm.optim.factory import create_optimizer, create_scheduler
 from segm.data.factory import create_dataset
 from segm.model.utils import num_params
+import os
 
 from timm.utils import NativeScaler
 from contextlib import suppress
 
 from segm.utils.distributed import sync_model
 from segm.engine import train_one_epoch, evaluate
+from dotenv import load_dotenv
 
+load_dotenv()
 
 @click.command(help="")
 @click.option("--log-dir", type=str, help="logging directory")
@@ -72,6 +76,14 @@ def main(
     # start distributed mode
     ptu.set_gpu_mode(True)
     distributed.init_process()
+
+    wandb_api_key = os.environ.get('WANDB_API_KEY')
+
+    if wandb_api_key is None:
+        raise RuntimeError("WANDB_API_KEY not set in the environment!")
+    
+    wandb.login(key = wandb_api_key)
+    wandb.init(project="Segmenter-with-DLG")
 
     # set up configuration
     cfg = config.load_config()
@@ -131,7 +143,7 @@ def main(
             normalization=model_cfg["normalization"],
             tokenizer_path = model_cfg["text_encoder"]["model_path"],
             split="train",
-            num_workers=10,
+            num_workers=8,
         ),
         algorithm_kwargs=dict(
             batch_size=batch_size,
@@ -181,7 +193,6 @@ def main(
     net_kwargs["n_cls"] = n_cls
     model = create_segmenter(net_kwargs)
     model.to(ptu.device)
-    print(model)
 
     # optimizer
     optimizer_kwargs = variant["optimizer_kwargs"]

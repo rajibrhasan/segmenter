@@ -2,6 +2,11 @@
 dataset_type = "BingRGBDataset"  # Or your own registered dataset class name
 data_root = "BingRGB/"
 
+custom_imports = dict(
+    imports=['segm.data.mmseg.custom_bing_rgb'],  # Python path (relative to PYTHONPATH)
+    allow_failed_imports=False
+)
+
 
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53],  # You can replace with your dataset's mean/std

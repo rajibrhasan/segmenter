@@ -18,6 +18,7 @@ def create_dataset(dataset_kwargs):
     split = dataset_kwargs.pop("split")
     tokenizer_path = dataset_kwargs.pop("tokenizer_path")
 
+
     # load dataset_name
     if dataset_name == "imagenet":
         dataset_kwargs.pop("patch_size")

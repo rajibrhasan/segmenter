@@ -2,10 +2,13 @@ import torch
 import math
 
 from segm.utils.logger import MetricLogger
-from segm.metrics import gather_data, compute_metrics
+from segm.metrics import gather_data, compute_metrics, calculate_cross_entropy_loss
 from segm.model import utils
 from segm.data.utils import IGNORE_LABEL
 import segm.utils.torch as ptu
+import wandb
+
+
 
 
 def train_one_epoch(
@@ -59,6 +62,8 @@ def train_one_epoch(
             learning_rate=optimizer.param_groups[0]["lr"],
         )
 
+        wandb.log({'train loss': loss.item()})
+
     return logger
 
 
@@ -71,6 +76,7 @@ def evaluate(
     window_stride,
     amp_autocast,
 ):
+
     model_without_ddp = model
     if hasattr(model, "module"):
         model_without_ddp = model.module
@@ -79,6 +85,7 @@ def evaluate(
     print_freq = 50
 
     val_seg_pred = {}
+    val_seg_prob = {}
     model.eval()
     for batch in logger.log_every(data_loader, print_freq, header):
         ims = [im.to(ptu.device) for im in batch["im"]]
@@ -99,12 +106,16 @@ def evaluate(
                 window_stride,
                 batch_size=1,
             )
-            seg_pred = seg_pred.argmax(0)
 
+            val_seg_prob[filename] = seg_pred
+            seg_pred = seg_pred.argmax(0)
+            
         seg_pred = seg_pred.cpu().numpy()
         val_seg_pred[filename] = seg_pred
 
     val_seg_pred = gather_data(val_seg_pred)
+    val_seg_prob = gather_data(val_seg_prob)
+
     scores = compute_metrics(
         val_seg_pred,
         val_seg_gt,
@@ -113,7 +124,15 @@ def evaluate(
         distributed=ptu.distributed,
     )
 
+    scores['ce_loss'] = calculate_cross_entropy_loss(val_seg_prob, val_seg_gt, ignore_index=IGNORE_LABEL, distributed = ptu.distributed)
+
     for k, v in scores.items():
         logger.update(**{f"{k}": v, "n": 1})
+    
+    wandb.log({
+        "test loss": scores['ce_loss'],
+        "mean acc": scores['mean_accuracy'],
+        "mean iou": scores['mean_iou']
+    })
 
     return logger
