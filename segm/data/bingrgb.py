@@ -55,7 +55,7 @@ class BingRGBDataset(BaseMMSeg):
             file_name = data["img_metas"][0].data["ori_filename"]
 
         # Get text for the sample and tokenize
-        text_caption = self.captions.get(file_name, "")
+        text_caption = self.captions.get(file_name)
         # example_text = "This patch is located in Shyampur union, under Tejgaon Development Circle Upazila of Dhaka District. Shyampur union has a population of 214,000, with a density of 16,525 people per square kilometer. The area of the union is 12.95 square kilometers, and the literacy rate is 97.0%. This patch is 10 km away from the nearest district center and 10 km away from the nearest upazila center. This patch is located outside of the District Sadar. This patch is located outside of the Upazila Sadar."
         if self.tokenizer is not None:
             tokenized_text = self.tokenizer(

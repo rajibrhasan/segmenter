@@ -68,22 +68,22 @@ data = dict(
     train=dict(
         type=dataset_type,
         data_root=data_root,
-        img_dir="images/train",
-        ann_dir="annotations/train",
+        img_dir="train/images",
+        ann_dir="train/gts",
         pipeline=train_pipeline,
     ),
     val=dict(
         type=dataset_type,
         data_root=data_root,
-        img_dir="images/val",
-        ann_dir="annotations/val",
+        img_dir="val/images",
+        ann_dir="val/gts",
         pipeline=test_pipeline,
     ),
     test=dict(
         type=dataset_type,
         data_root=data_root,
-        img_dir="images/test",
-        ann_dir="annotations/test",
+        img_dir="val/images",
+        ann_dir="val/gts",
         pipeline=test_pipeline,
     ),
 )
