@@ -5,6 +5,8 @@ import math
 import os
 import torch.nn as nn
 
+import timm
+from transformers import CLIPProcessor, CLIPModel
 from timm.models.helpers import load_pretrained, load_custom_pretrained
 from timm.models.vision_transformer import default_cfgs
 from timm.models.registry import register_model
@@ -50,8 +52,12 @@ def create_vit(model_cfg):
     mlp_expansion_ratio = 4
     model_cfg["d_ff"] = mlp_expansion_ratio * model_cfg["d_model"]
 
+    # print(default_cfgs)
+
     if backbone in default_cfgs:
         default_cfg = default_cfgs[backbone]
+        print("Inside backbne")
+        print(default_cfg)
     else:
         default_cfg = dict(
             pretrained=False,
@@ -72,10 +78,14 @@ def create_vit(model_cfg):
         state_dict = torch.load(path, map_location="cpu")
         filtered_dict = checkpoint_filter_fn(state_dict, model)
         model.load_state_dict(filtered_dict, strict=True)
+    elif backbone == "vit_base_patch16_clip_224":
+        model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
     elif "deit" in backbone:
         load_pretrained(model, default_cfg, filter_fn=checkpoint_filter_fn)
     else:
         load_custom_pretrained(model, default_cfg)
+    
+
 
     return model
 
@@ -101,7 +111,7 @@ def create_decoder(encoder, decoder_cfg):
 
 
 def create_segmenter(model_cfg):
-    print(model_cfg)
+    # print(model_cfg)
     model_cfg = model_cfg.copy()
     encoder_t_cfg = model_cfg.pop("text_encoder")
     dlg_cfg = model_cfg.pop("dlg")
@@ -111,7 +121,7 @@ def create_segmenter(model_cfg):
     encoder = create_vit(model_cfg)
     encoder_t = CLIPTextEncoder(encoder_t_cfg['model_path'])
     decoder = create_decoder(encoder,  decoder_cfg)
-    dlg = DenseLanguageGuidanceModule(model_cfg['d_model'], encoder_t_cfg['d_model'], dlg_cfg['d_model'], encoder.d_model)
+    dlg = DenseLanguageGuidanceModule(model_cfg['d_model'], encoder_t_cfg['d_model'], dlg_cfg['d_model'], model_cfg['d_model'])
 
     model = Segmenter(encoder, encoder_t, dlg, decoder, n_cls=model_cfg["n_cls"])
 

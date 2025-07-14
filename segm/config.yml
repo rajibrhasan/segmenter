@@ -65,6 +65,14 @@ model:
     n_layers: 12
     normalization: vit
     distilled: false
+  vit_base_patch16_clip_224:
+    image_size: 224
+    patch_size: 16
+    d_model: 768
+    n_heads: 12
+    n_layers: 12
+    normalization: clip
+    distilled: false
   vit_large_patch16_384:
     image_size: 384
     patch_size: 16
@@ -140,7 +148,7 @@ dataset:
     
   bing_rgb:
     epochs: 200               # You can adjust based on dataset size
-    eval_freq: 1             # Evaluate every 5 epochs
+    eval_freq: 1             # Evaluate every 1 epoch
     batch_size: 8             # Depends on GPU memory
     learning_rate: 0.001      # Start with a stable learning rate
     im_size: 512             # Image size (used if resizing is applied)
