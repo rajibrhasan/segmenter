@@ -1,0 +1,50 @@
+{
+  "patch_00000.png": {
+    "Location": "Kalia union",
+    "Upazila": "Sakhipur",
+    "District": "Tangail",
+    "Population Density": 749,
+    "Literacy": 66.87,
+    "Region Type": "Union",
+    "distance_to_district_sadar": "30.47 km",
+    "distance_to_upazila_sadar": "6.51 km",
+    "inside_district_sadar": false,
+    "inside_upazila_sadar": false
+  },
+  "patch_00003.png": {
+    "Location": "Kalia union",
+    "Upazila": "Sakhipur",
+    "District": "Tangail",
+    "Population Density": 749,
+    "Literacy": 66.87,
+    "Region Type": "Union",
+    "distance_to_district_sadar": "31.22 km",
+    "distance_to_upazila_sadar": "6.67 km",
+    "inside_district_sadar": false,
+    "inside_upazila_sadar": false
+  },
+  "patch_00002.png": {
+    "Location": "Kalia union",
+    "Upazila": "Sakhipur",
+    "District": "Tangail",
+    "Population Density": 749,
+    "Literacy": 66.87,
+    "Region Type": "Union",
+    "distance_to_district_sadar": "30.97 km",
+    "distance_to_upazila_sadar": "6.61 km",
+    "inside_district_sadar": false,
+    "inside_upazila_sadar": false
+  },
+  "patch_00001.png": {
+    "Location": "Kalia union",
+    "Upazila": "Sakhipur",
+    "District": "Tangail",
+    "Population Density": 749,
+    "Literacy": 66.87,
+    "Region Type": "Union",
+    "distance_to_district_sadar": "30.72 km",
+    "distance_to_upazila_sadar": "6.55 km",
+    "inside_district_sadar": false,
+    "inside_upazila_sadar": false
+  }
+}

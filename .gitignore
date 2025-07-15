@@ -16,7 +16,8 @@ Dataset/
 
 # Distribution / packaging
 .Python
-metadata_utils/files/bgd_adm_bbs_20201113_shp/
+metadata_utils/bgd_adm_bbs_20201113_shp/
+metadata_utils/files/
 dataset/
 build/
 develop-eggs/
