@@ -9,16 +9,16 @@ from timm.models.layers import trunc_normal_
 class Segmenter(nn.Module):
     def __init__(
         self,
+        encoder_cfg,
         encoder,
         encoder_t,
         dlg,
-        decoder,
-
-        n_cls,
+        decoder
     ):
         super().__init__()
-        self.n_cls = n_cls
-        self.patch_size = encoder.patch_size
+        self.n_cls = encoder_cfg['n_cls']
+        self.encoder_cfg = encoder_cfg
+        self.patch_size = encoder_cfg['patch_size']
         self.encoder = encoder
         self.encoder_t = encoder_t
         self.dlg = dlg
@@ -38,10 +38,10 @@ class Segmenter(nn.Module):
         H_ori, W_ori = im.size(2), im.size(3)
         im = padding(im, self.patch_size)
         H, W = im.size(2), im.size(3)
-        fv = self.encoder(im, return_features=True)
+        fv = self.encoder(im).last_hidden_state
 
         # remove CLS/DIST tokens for decoding
-        num_extra_tokens = 1 + self.encoder.distilled
+        num_extra_tokens = 1 + self.encoder_cfg['distilled']
         fv = fv[:, num_extra_tokens:]
         text["input_ids"] = text["input_ids"].squeeze(1)         # from (8,1,77) → (8,77)
         text["attention_mask"] = text["attention_mask"].squeeze(1)
