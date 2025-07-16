@@ -80,6 +80,9 @@ def create_vit(model_cfg):
         model.load_state_dict(filtered_dict, strict=True)
     elif backbone == "vit_base_patch16_clip_224":
         model = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch16")
+        for param in model.parameters():
+            param.requires_grad = False
+        
     elif "deit" in backbone:
         load_pretrained(model, default_cfg, filter_fn=checkpoint_filter_fn)
     else:

@@ -181,5 +181,5 @@ def inference(
 
 def num_params(model):
     model_parameters = filter(lambda p: p.requires_grad, model.parameters())
-    n_params = sum([torch.prod(torch.tensor(p.size())) for p in model_parameters])
-    return n_params.item()
+    n_params = sum([torch.prod(torch.tensor(p.size())).item() for p in model_parameters])
+    return n_params

@@ -24,6 +24,7 @@ class Segmenter(nn.Module):
         self.dlg = dlg
         self.decoder = decoder
 
+
     @torch.jit.ignore
     def no_weight_decay(self):
         def append_prefix_no_weight_decay(prefix, module):
@@ -32,6 +33,7 @@ class Segmenter(nn.Module):
         nwd_params = append_prefix_no_weight_decay("encoder.", self.encoder).union(
             append_prefix_no_weight_decay("decoder.", self.decoder)
         )
+        
         return nwd_params
 
     def forward(self, im, text):

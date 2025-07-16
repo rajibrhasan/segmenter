@@ -194,6 +194,10 @@ def main(
     model = create_segmenter(net_kwargs)
     model.to(ptu.device)
 
+    # for name, param in model.named_parameters():
+    #     print(f"{name}: requires_grad={param.requires_grad}")
+
+
     # optimizer
     optimizer_kwargs = variant["optimizer_kwargs"]
     optimizer_kwargs["iter_max"] = len(train_loader) * optimizer_kwargs["epochs"]
@@ -203,6 +207,12 @@ def main(
     for k, v in optimizer_kwargs.items():
         opt_vars[k] = v
     optimizer = create_optimizer(opt_args, model)
+
+    # for i, param_group in enumerate(optimizer.param_groups):
+    #     for j, param in enumerate(param_group['params']):
+    #         print(f"Param group {i}, param {j}: shape={tuple(param.shape)}, requires_grad={param.requires_grad}")
+    
+
     lr_scheduler = create_scheduler(opt_args, optimizer)
     num_iterations = 0
     amp_autocast = suppress
