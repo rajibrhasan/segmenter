@@ -64,7 +64,10 @@ test_pipeline = [
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
-    caption_json_path = "captions.json",
+    train_metadata_path = "train_metadata.json",
+    val_metadata_path = "val_metadata.json",
+    test_metadata_path = "val_metadata.json",
+    
     train=dict(
         type=dataset_type,
         data_root=data_root,

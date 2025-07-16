@@ -10,6 +10,34 @@ RGB_CUSTOM_CONFIG_PATH = Path(__file__).parent / "config" / "bing_rgb.py"
 RGB_CUSTOM_CATS_PATH = Path(__file__).parent / "config" / "bing_rgb.yml"
 
 
+def format_patch_text(data):
+    template = (
+    '"Location": "{Location}", "Upazila": "{Upazila}", "District": "{District}", '
+    '"Population Density": {Population_Density}, "Literacy": {Literacy}, "Region Type": "{Region_Type}", '
+    'Distance to district sadar is {distance_to_district_sadar}, distance to upazila sadar is {distance_to_upazila_sadar}, '
+    '{inside_district_sadar_text}, {inside_upazila_sadar_text}'
+    )
+    inside_district_sadar_text = (
+        "inside district sadar" if data["inside_district_sadar"] else "not inside district sadar"
+    )
+    inside_upazila_sadar_text = (
+        "inside upazila sadar" if data["inside_upazila_sadar"] else "not inside upazila sadar"
+    )
+    
+    return template.format(
+        Location=data["Location"],
+        Upazila=data["Upazila"],
+        District=data["District"],
+        Population_Density=data["Population Density"],
+        Literacy=data["Literacy"],
+        Region_Type=data["Region Type"],
+        distance_to_district_sadar=data["distance_to_district_sadar"],
+        distance_to_upazila_sadar=data["distance_to_upazila_sadar"],
+        inside_district_sadar_text=inside_district_sadar_text,
+        inside_upazila_sadar_text=inside_upazila_sadar_text
+    )
+
+
 class BingRGBDataset(BaseMMSeg):
     def __init__(self, image_size, crop_size, split, tokenizer, **kwargs):
         super().__init__(image_size, crop_size, split, RGB_CUSTOM_CONFIG_PATH, **kwargs)
@@ -17,8 +45,10 @@ class BingRGBDataset(BaseMMSeg):
         self.n_cls = len(self.names)
         self.ignore_label = 255
         self.reduce_zero_label = False
-        self.tokenizer = tokenizer          # Tokenizer instance
-        with open(f'{self.config.data_root}/{self.config.data.caption_json_path}', "r") as f:
+        self.tokenizer = tokenizer 
+        metadata_path = f'{self.config.data_root}/{split}_metadata.json'        
+
+        with open(metadata_path, "r") as f:
             self.captions = json.load(f)
        
 
@@ -55,7 +85,7 @@ class BingRGBDataset(BaseMMSeg):
             file_name = data["img_metas"][0].data["ori_filename"]
 
         # Get text for the sample and tokenize
-        text_caption = self.captions.get(file_name)
+        text_caption = format_patch_text(self.captions.get(file_name))
         # example_text = "This patch is located in Shyampur union, under Tejgaon Development Circle Upazila of Dhaka District. Shyampur union has a population of 214,000, with a density of 16,525 people per square kilometer. The area of the union is 12.95 square kilometers, and the literacy rate is 97.0%. This patch is 10 km away from the nearest district center and 10 km away from the nearest upazila center. This patch is located outside of the District Sadar. This patch is located outside of the Upazila Sadar."
         if self.tokenizer is not None:
             tokenized_text = self.tokenizer(

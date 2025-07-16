@@ -23,8 +23,8 @@ upazilas = gpd.read_file(f'{shp_path}/bgd_admbnda_adm3_bbs_20201113.shp').to_crs
 unions = gpd.read_file(f'{shp_path}/bgd_admbnda_adm4_bbs_20201113.shp').to_crs(epsg=32646)
 
 # Metadata
-district_df = pd.read_excel('files/district_coordinates.xlsx')
-upazila_df = pd.read_excel('files/upazila_coordinates.xlsx')
+district_df = pd.read_excel('region_metadata.xlsx', sheet_name = 'district_coord')
+upazila_df = pd.read_excel('files/upazila_coordinates.xlsx', sheet_name = 'upazila_coord')
 
 
 def generate_base_metadata(file_path, sheet_name):
@@ -82,8 +82,8 @@ def get_patch_metadata(tif_path, base_metadata):
     district_name = max_union["ADM2_EN"].strip()
 
     # Find matching coordinates
-    matching_district = district_gdf[district_gdf["ADM2_EN"].str.strip() == district_name].copy()
-    matching_upazila = upazila_gdf[upazila_gdf["ADM3_EN"].str.strip() == upazila_name].copy()
+    matching_district = district_gdf[district_gdf["District"].str.strip() == district_name].copy()
+    matching_upazila = upazila_gdf[upazila_gdf["Upazila"].str.strip() == upazila_name].copy()
 
     # Compute distances
     district_dist_km = matching_district.distance(tiff_centroid).min() / 1000
@@ -103,7 +103,6 @@ def get_patch_metadata(tif_path, base_metadata):
 def main(folders):
     start_time = time.time()
     base_metadata = generate_base_metadata('region_metadata.xlsx', 'metadata')
-    all_captions = {}
 
     for folder in folders:
         tif_files = glob.glob(os.path.join(folder, "*.tif"))
@@ -113,15 +112,13 @@ def main(folders):
         for tif_path in tqdm(tif_files, desc=f"Folder: {os.path.basename(folder)}"):
             key = os.path.basename(tif_path).replace('.tif', '.png')
             captions[key] = get_patch_metadata(tif_path, base_metadata)
-        
-        all_captions.update(captions)
 
-
-    with open("captions.json", 'w', encoding='utf-8') as f:
-        json.dump(all_captions, f, ensure_ascii=False, indent=2)
+        json_file_name = f'{folder.split()[-2]}_captions.json'
+        with open(json_file_name, 'w', encoding='utf-8') as f:
+            json.dump(captions, f, ensure_ascii=False, indent=2)
 
     print(f"Elapsed time: {time.time() - start_time:.2f} seconds.")
 
 if __name__ == "__main__":
-    folders = ["/teamspace/studios/this_studio/segmenter/Dataset/BingRGB/train/images", "/teamspace/studios/this_studio/segmenter/Dataset/BingRGB/train/images"]
+    folders = ["/teamspace/studios/this_studio/segmenter/Dataset/BingRGB/train/images", "/teamspace/studios/this_studio/segmenter/Dataset/BingRGB/test/images"]
     main(folders)

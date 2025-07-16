@@ -23,7 +23,7 @@ def train_one_epoch(
     criterion = torch.nn.CrossEntropyLoss(ignore_index=IGNORE_LABEL)
     logger = MetricLogger(delimiter="  ")
     header = f"Epoch: [{epoch}]"
-    print_freq = 100
+    print_freq = 500
 
     model.train()
     data_loader.set_epoch(epoch)
