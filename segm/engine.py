@@ -7,6 +7,7 @@ from segm.model import utils
 from segm.data.utils import IGNORE_LABEL
 import segm.utils.torch as ptu
 import wandb
+import numpy as np
 
 
 
@@ -122,9 +123,20 @@ def evaluate(
         data_loader.unwrapped.n_cls,
         ignore_index=IGNORE_LABEL,
         distributed=ptu.distributed,
+        ret_cat_iou = True
     )
 
     scores['ce_loss'] = calculate_cross_entropy_loss(val_seg_prob, val_seg_gt, ignore_index=IGNORE_LABEL, distributed = ptu.distributed)
+    scores['mean_f1_score'] = np.round(np.nanmean(scores['f1score'].astype(np.float64)) * 100, 2)
+    
+    cls_names = ['background', 'farmland', 'water', 'forest','built-up', 'meadow']
+    print("Class-wise F1 Scores:")
+    for name, score in zip(cls_names, scores.pop('f1score')):
+        print(f"  {name:<15}: {score:.2f}")
+    
+    print("Class-wise IOU Scores:")
+    for name, score in zip(cls_names, scores.pop('cat_iou')):
+        print(f"  {name:<15}: {score:.2f}")
 
     for k, v in scores.items():
         logger.update(**{f"{k}": v, "n": 1})
@@ -132,7 +144,9 @@ def evaluate(
     wandb.log({
         "test loss": scores['ce_loss'],
         "mean acc": scores['mean_accuracy'],
-        "mean iou": scores['mean_iou']
+        "mean iou": scores['mean_iou'],
+        "mean f1": scores['mean_f1_score']
+
     })
 
     return logger

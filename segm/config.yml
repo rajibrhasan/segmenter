@@ -149,7 +149,7 @@ dataset:
   bing_rgb:
     epochs: 200               # You can adjust based on dataset size
     eval_freq: 1              # Evaluate every 1 epoch
-    batch_size: 16             # Depends on GPU memory
+    batch_size: 16            # Depends on GPU memory
     learning_rate: 0.001      # Start with a stable learning rate
     im_size: 512              # Image size (used if resizing is applied)
     crop_size: 224            # Set to full resolution, assuming no cropping

@@ -8,7 +8,7 @@ import pickle as pkl
 from pathlib import Path
 import tempfile
 import shutil
-from mmseg.core import mean_iou
+from mmseg.core import mean_iou, mean_fscore
 from segm.data.utils import IGNORE_LABEL
 
 """
@@ -121,6 +121,12 @@ def compute_metrics(
             num_classes=n_cls,
             ignore_index=ignore_index,
         )
+        ret_metrics_fscore = mean_fscore(
+            results = list_seg_pred,
+            gt_seg_maps = list_seg_gt,
+            num_classes = n_cls,
+            ignore_index = ignore_index
+        )
         ret_metrics = [ret_metrics["aAcc"], ret_metrics["Acc"], ret_metrics["IoU"]]
         ret_metrics_mean = torch.tensor(
             [
@@ -135,7 +141,12 @@ def compute_metrics(
     if distributed:
         dist.broadcast(ret_metrics_mean, 0)
     pix_acc, mean_acc, miou = ret_metrics_mean
-    ret = dict(pixel_accuracy=pix_acc, mean_accuracy=mean_acc, mean_iou=miou)
+    ret = dict(
+        pixel_accuracy=pix_acc, 
+        mean_accuracy=mean_acc, 
+        mean_iou=miou, 
+        f1score = ret_metrics_fscore['Fscore']
+    )
     if ret_cat_iou and ptu.dist_rank == 0:
         ret["cat_iou"] = cat_iou
     return ret

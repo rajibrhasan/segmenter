@@ -75,9 +75,14 @@ class BingRGBDataset(BaseMMSeg):
         if self.split in train_splits:
             im = data["img"].data
             seg = data["gt_semantic_seg"].data.squeeze(0)
+
+            #Mapping background to 255
+            seg[seg == 0] = 255
+            seg[seg != 255] -= 1
         else:
             im = [im.data for im in data["img"]]
             seg = None
+        
 
         if self.split in train_splits:
             file_name = data["img_metas"].data["ori_filename"]
