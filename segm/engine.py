@@ -129,7 +129,7 @@ def evaluate(
     scores['ce_loss'] = calculate_cross_entropy_loss(val_seg_prob, val_seg_gt, ignore_index=IGNORE_LABEL, distributed = ptu.distributed)
     scores['mean_f1_score'] = np.round(np.nanmean(scores['f1score'].astype(np.float64)) * 100, 2)
     
-    cls_names = ['background', 'farmland', 'water', 'forest','built-up', 'meadow']
+    cls_names = ['farmland', 'water', 'forest','built-up', 'meadow']
     print("Class-wise F1 Scores:")
     for name, score in zip(cls_names, scores.pop('f1score')):
         print(f"  {name:<15}: {score:.2f}")

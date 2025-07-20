@@ -88,6 +88,7 @@ def calculate_cross_entropy_loss(seg_pred, seg_gt, ignore_index=255, distributed
         keys = sorted(seg_pred.keys())
         seg_preds = torch.stack([seg_pred[k].detach().cpu() for k in keys])
         seg_gts = torch.stack([torch.from_numpy(seg_gt[k]) for k in keys])
+       
 
         with torch.no_grad():
             loss = criterion(seg_preds.cpu().float(), seg_gts.long()).item()

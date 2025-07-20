@@ -256,6 +256,11 @@ def main(
         model_without_ddp = model.module
 
     val_seg_gt = val_loader.dataset.get_gt_seg_maps()
+    for key in val_seg_gt:
+        arr = val_seg_gt[key]
+        arr[arr == 0]= 255
+        arr[arr != 255] -= 1
+        val_seg_gt[key] = arr
 
     print(f"Train dataset length: {len(train_loader.dataset)}")
     print(f"Val dataset length: {len(val_loader.dataset)}")
