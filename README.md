@@ -20,7 +20,7 @@ Install [PyTorch 1.9](https://pytorch.org/) then `pip install .` at the root of 
 
 To download ADE20K, use the following command:
 ```python
-python -m segm.scripts.prepare_ade20k $DATASET
+python -m segm.scripts.prepare_bingrgb $DATASET
 ```
 
 ## Model Zoo
